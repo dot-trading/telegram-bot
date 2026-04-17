@@ -92,16 +92,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
-
-      - name: Configure kubeconfig
-        env:
-          KUBECONFIG_RAW: ${{ secrets.KUBECONFIG }}
-        run: |
-          mkdir -p $HOME/.kube
-          printf '%s' "$KUBECONFIG_RAW" > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
+      - name: Set up kubectl and kubeconfig
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
 
       - name: Apply K8s manifests
         run: |
