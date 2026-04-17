@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TelegramBot.Application/TelegramBot.Application.csproj" />
+    <Project Path="src/TelegramBot.Domain/TelegramBot.Domain.csproj" />
+    <Project Path="src/TelegramBot.Infrastructure/TelegramBot.Infrastructure.csproj" />
+    <Project Path="src/TelegramBot.UI/TelegramBot.UI.csproj" />
+  </Folder>
+</Solution>

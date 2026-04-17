@@ -1,0 +1,37 @@
+<Project>
+
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+
+    <ItemGroup Label="Microsoft.Extensions">
+        <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Label="EntityFrameworkCore">
+        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
+        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Label="Npgsql">
+        <PackageVersion Include="Npgsql" Version="10.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Label="Telegram">
+        <PackageVersion Include="Telegram.Bot" Version="22.9.6" />
+    </ItemGroup>
+
+    <ItemGroup Label="Cortex.Mediator">
+        <PackageVersion Include="Cortex.Mediator" Version="3.1.2" />
+        <PackageVersion Include="Cortex.Mediator.Behaviors.FluentValidation" Version="3.1.2" />
+        <PackageVersion Include="Cortex.Mediator.Behaviors.Transactional" Version="3.1.2" />
+    </ItemGroup>
+
+    <ItemGroup Label="AspNetCore">
+        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
+    </ItemGroup>
+
+</Project>

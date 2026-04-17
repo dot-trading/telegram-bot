@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Telegram.Bot" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\TelegramBot.Application\TelegramBot.Application.csproj" />
+        <ProjectReference Include="..\TelegramBot.Domain\TelegramBot.Domain.csproj" />
+    </ItemGroup>
+
+</Project>

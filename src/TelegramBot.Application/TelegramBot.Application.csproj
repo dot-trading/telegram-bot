@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="Cortex.Mediator" />
+        <PackageReference Include="Cortex.Mediator.Behaviors.FluentValidation" />
+        <PackageReference Include="Cortex.Mediator.Behaviors.Transactional" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\TelegramBot.Domain\TelegramBot.Domain.csproj" />
+        <ProjectReference Include="..\TelegramBot.Infrastructure\TelegramBot.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>
