@@ -21,6 +21,7 @@ public static class DependencyInjection
         services.AddScoped<IDatabaseService, DatabaseService>();
         services.AddScoped<IBinanceService, BinanceService>();
         services.AddScoped<IClusterService, ClusterService>();
+        services.AddHostedService<MqttListenerService>();
 
         return services;
     }

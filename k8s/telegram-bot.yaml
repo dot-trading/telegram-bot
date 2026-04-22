@@ -46,8 +46,11 @@ spec:
       containers:
         - name: telegram-bot
           # Overridden by CI via `kubectl set image` — replace with your Docker Hub image on first manual deploy
-          image: DOCKER_IMAGE_NAME:latest
+          image: hsaii/telegram-bot:latest
           imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: service-endpoints
           ports:
             - containerPort: 8080
           env:

@@ -8,6 +8,9 @@
         </PackageReference>
         <PackageReference Include="Npgsql" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+        <PackageReference Include="MQTTnet" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Telegram.Bot" />
     </ItemGroup>
 
     <ItemGroup>
