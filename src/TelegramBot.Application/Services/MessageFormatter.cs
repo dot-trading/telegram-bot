@@ -1,4 +1,5 @@
 using TelegramBot.Domain.Abstractions;
+using TelegramBot.Domain.Constants;
 
 namespace TelegramBot.Application.Services;
 
@@ -20,14 +21,14 @@ public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClu
             var ollamaStatus = await cluster.GetOllamaStatusAsync();
             var emo = dailyPnl >= 0 ? "📈" : "📉";
 
-            return $"🤖 <b>TRADING AI — STATUS</b>\n" +
+            return $"{IconsStrings.Robot} <b>TRADING AI — STATUS</b>\n" +
                    $"━━━━━━━━━━━━━━━━━━━━\n" +
-                   $"🟢 Système: <b>ONLINE</b>\n\n" +
-                   $"🔧 <b>Infrastructure:</b>\n" +
+                   $"{IconsStrings.System} Système: <b>ONLINE</b>\n\n" +
+                   $"{IconsStrings.Spanner} <b>Infrastructure:</b>\n" +
                    $"├─ Orchestrateur: {orchStatus}\n" +
                    $"├─ Ollama (IA): {ollamaStatus}\n" +
-                   $"└─ Database: ✅ Connected\n\n" +
-                   $"💰 <b>Portfolio:</b>\n" +
+                   $"└─ Database: {IconsStrings.Ok} Connected\n\n" +
+                   $"{IconsStrings.CashBag} <b>Portfolio:</b>\n" +
                    $"├─ Capital libre: {total:F2}€\n" +
                    $"│   ├─ EUR: {bals.GetValueOrDefault("EUR"):F2}\n" +
                    $"│   ├─ USDC: {bals.GetValueOrDefault("USDC"):F2}\n" +
@@ -37,7 +38,7 @@ public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClu
                    $"└─ P&amp;L total: {totalPnl:+0.00;-0.00}€\n\n" +
                    $"⚡ {Now()}";
         }
-        catch (Exception e) { return $"❌ Erreur status: {e.Message}"; }
+        catch (Exception e) { return $"{IconsStrings.Ko} Erreur status: {e.Message}"; }
     }
 
     public string GetStatsMessage()
