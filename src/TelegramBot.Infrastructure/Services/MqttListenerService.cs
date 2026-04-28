@@ -36,7 +36,10 @@ public class MqttListenerService(
             .WithKeepAlivePeriod(TimeSpan.FromSeconds(60))
             .Build();
 
-        mqttClient.ApplicationMessageReceivedAsync += async e =>
+        mqttClient.ApplicationMessageReceivedAsync += OnMessageReceived;
+        mqttClient.DisconnectedAsync += OnDisconnected;
+
+        async Task OnMessageReceived(MqttApplicationMessageReceivedEventArgs e)
         {
             var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
             logger.LogInformation("Received MQTT message on topic {Topic}: {Payload}", e.ApplicationMessage.Topic, payload);
@@ -47,30 +50,36 @@ public class MqttListenerService(
                     chatId: _adminChatId,
                     text: payload,
                     cancellationToken: stoppingToken);
-                
+
                 logger.LogInformation("Forwarded MQTT message to Telegram Admin {AdminId}", _adminChatId);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Failed to send Telegram message to {AdminId}", _adminChatId);
             }
-        };
+        }
 
-        mqttClient.DisconnectedAsync += async e =>
+        async Task OnDisconnected(MqttClientDisconnectedEventArgs e)
         {
             if (stoppingToken.IsCancellationRequested) return;
-            
+
             logger.LogWarning("Disconnected from MQTT broker. Retrying in 5 seconds...");
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             try
             {
                 await mqttClient.ConnectAsync(mqttClientOptions, stoppingToken);
+
+                var resubscribeOptions = new MqttClientSubscribeOptionsBuilder()
+                    .WithTopicFilter(f => f.WithTopic("#"))
+                    .Build();
+                await mqttClient.SubscribeAsync(resubscribeOptions, stoppingToken);
+                logger.LogInformation("Re-subscribed to all topics (#) after reconnect");
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Failed to reconnect to MQTT broker.");
             }
-        };
+        }
 
         try
         {
@@ -78,11 +87,11 @@ public class MqttListenerService(
             await mqttClient.ConnectAsync(mqttClientOptions, stoppingToken);
 
             var subscribeOptions = new MqttClientSubscribeOptionsBuilder()
-                .WithTopicFilter(f => f.WithTopic("trading/notifications"))
+                .WithTopicFilter(f => f.WithTopic("#"))
                 .Build();
 
             await mqttClient.SubscribeAsync(subscribeOptions, stoppingToken);
-            logger.LogInformation("Subscribed to topic: trading/notifications");
+            logger.LogInformation("Subscribed to all topics (#)");
 
             // Keep the service alive
             while (!stoppingToken.IsCancellationRequested)
