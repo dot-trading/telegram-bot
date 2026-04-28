@@ -5,4 +5,7 @@
     <Project Path="src/TelegramBot.Infrastructure/TelegramBot.Infrastructure.csproj" />
     <Project Path="src/TelegramBot.UI/TelegramBot.UI.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TelegramBot.Domain.Tests/TelegramBot.Domain.Tests.csproj" />
+  </Folder>
 </Solution>
