@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <ItemGroup>
+        <PackageReference Include="Cortex.Mediator" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="MQTTnet" />
         <PackageReference Include="Telegram.Bot" />
     </ItemGroup>
 

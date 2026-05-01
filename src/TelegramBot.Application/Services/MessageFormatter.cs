@@ -19,6 +19,7 @@ public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClu
             var totalPnl = db.GetTotalPnl();
             var orchStatus = cluster.GetOrchestratorStatus();
             var ollamaStatus = await cluster.GetOllamaStatusAsync();
+            var persistenceStatus = await cluster.GetPersistenceStatusAsync();
             var emo = dailyPnl >= 0 ? "📈" : "📉";
 
             return $"{IconsStrings.Robot} <b>TRADING AI — STATUS</b>\n" +
@@ -27,6 +28,7 @@ public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClu
                    $"{IconsStrings.Spanner} <b>Infrastructure:</b>\n" +
                    $"├─ Orchestrateur: {orchStatus}\n" +
                    $"├─ Ollama (IA): {ollamaStatus}\n" +
+                   $"├─ Persistence: {persistenceStatus}\n" +
                    $"└─ Database: {IconsStrings.Ok} Connected\n\n" +
                    $"{IconsStrings.CashBag} <b>Portfolio:</b>\n" +
                    $"├─ Capital libre: {total:F2}€\n" +

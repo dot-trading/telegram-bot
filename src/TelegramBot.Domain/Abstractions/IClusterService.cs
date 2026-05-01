@@ -4,6 +4,7 @@ public interface IClusterService
 {
     string GetOrchestratorStatus();
     Task<string> GetOllamaStatusAsync();
+    Task<string> GetPersistenceStatusAsync();
     Task<List<OllamaModel>> GetOllamaModelsAsync();
     string GetK8sPodsStatus();
 }

@@ -26,13 +26,18 @@ public class IconsStringsTests
         Assert.DoesNotContain("FieldInfos", IconsStrings.Names);
     }
 
+    public static TheoryData<string, string> EmojiData() => new()
+    {
+        { "Robot", "🤖" },
+        { "Spanner", "🔧" },
+        { "Ok", "✅" },
+        { "Ko", "❌" },
+        { "CashBag", "💰" },
+        { "System", "🟢" },
+    };
+
     [Theory]
-    [InlineData("Robot", "🤖")]
-    [InlineData("Spanner", "🔧")]
-    [InlineData("Ok", "✅")]
-    [InlineData("Ko", "❌")]
-    [InlineData("CashBag", "💰")]
-    [InlineData("System", "🟢")]
+    [MemberData(nameof(EmojiData))]
     public void Indexer_ReturnsCorrectEmoji(string name, string expected)
     {
         var icons = new IconsStrings();

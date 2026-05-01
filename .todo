@@ -1,1 +1,3 @@
-- [] securise api 
+- [ ] check if there are authentication on api.
+- [ ] secure end point
+- [ ] in MqttListenerService check of topic specification is necessary ( .WithTopicFilter(_ => Task.FromResult(true)) )

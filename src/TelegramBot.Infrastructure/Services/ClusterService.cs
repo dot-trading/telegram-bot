@@ -40,6 +40,19 @@ public class ClusterService(IOptions<ClusterSettings> settings) : IClusterServic
         }
     }
 
+    public async Task<string> GetPersistenceStatusAsync()
+    {
+        try
+        {
+            var response = await Http.GetAsync($"{settings.Value.PersistenceServiceUrl}/health");
+            return response.IsSuccessStatusCode ? "✅ Running" : "⚠️ Problem";
+        }
+        catch
+        {
+            return "❌ KO";
+        }
+    }
+
     public async Task<List<OllamaModel>> GetOllamaModelsAsync()
     {
         try

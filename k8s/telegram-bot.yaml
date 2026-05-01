@@ -65,6 +65,11 @@ spec:
                   key: postgres-password
             - name: ClusterSettings__OllamaUrl
               value: "http://ollama-eur.trading-ai.svc.cluster.local:11434"
+            - name: ClusterSettings__PersistenceServiceUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: service-endpoints
+                  key: PERSISTENCE_SERVICE_URL
             - name: TelegramBotSettings__BotToken
               valueFrom:
                 secretKeyRef:

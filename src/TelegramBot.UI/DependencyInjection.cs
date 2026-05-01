@@ -4,6 +4,7 @@ using TelegramBot.Application;
 using TelegramBot.Domain;
 using TelegramBot.Domain.Settings;
 using TelegramBot.Infrastructure;
+using TelegramBot.UI.Services;
 
 namespace TelegramBot.UI;
 
@@ -28,6 +29,8 @@ public static class DependencyInjection
             var settings = sp.GetRequiredService<IOptions<TelegramBotSettings>>().Value;
             return new TelegramBotClient(settings.BotToken);
         });
+
+        services.AddHostedService<MqttListenerService>();
 
         return services;
     }

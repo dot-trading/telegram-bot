@@ -1,5 +1,7 @@
 using System.Text;
+using Cortex.Mediator;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -8,12 +10,13 @@ using MQTTnet.Client;
 using Telegram.Bot;
 using TelegramBot.Domain.Settings;
 
-namespace TelegramBot.Infrastructure.Services;
+namespace TelegramBot.UI.Services;
 
 public class MqttListenerService(
     IConfiguration configuration,
     ITelegramBotClient botClient,
     IOptions<TelegramBotSettings> botSettings,
+    IServiceProvider serviceProvider,
     ILogger<MqttListenerService> logger) : BackgroundService
 {
     private readonly string _brokerHost = configuration["MQTT_BROKER_HOST"] ?? "message-broker";
@@ -44,18 +47,28 @@ public class MqttListenerService(
             var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
             logger.LogInformation("Received MQTT message on topic {Topic}: {Payload}", e.ApplicationMessage.Topic, payload);
 
-            try
+            if (!e.ApplicationMessage.Topic.Equals("trading/notifications"))
             {
-                await botClient.SendMessage(
-                    chatId: _adminChatId,
-                    text: payload,
-                    cancellationToken: stoppingToken);
-
-                logger.LogInformation("Forwarded MQTT message to Telegram Admin {AdminId}", _adminChatId);
+                await SendMessageAsync(
+                    e.ApplicationMessage.Topic,
+                    payload,
+                    e.ApplicationMessage.TopicAlias);
             }
-            catch (Exception ex)
+            else
             {
-                logger.LogError(ex, "Failed to send Telegram message to {AdminId}", _adminChatId);
+                try
+                {
+                    await botClient.SendMessage(
+                        chatId: _adminChatId,
+                        text: payload,
+                        cancellationToken: stoppingToken);
+
+                    logger.LogInformation("Forwarded MQTT message to Telegram Admin {AdminId}", _adminChatId);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to send Telegram message to {AdminId}", _adminChatId);
+                }
             }
         }
 
@@ -87,13 +100,12 @@ public class MqttListenerService(
             await mqttClient.ConnectAsync(mqttClientOptions, stoppingToken);
 
             var subscribeOptions = new MqttClientSubscribeOptionsBuilder()
-                .WithTopicFilter(f => f.WithTopic("#"))
+                .WithTopicFilter(_ => Task.FromResult(true))
                 .Build();
 
             await mqttClient.SubscribeAsync(subscribeOptions, stoppingToken);
             logger.LogInformation("Subscribed to all topics (#)");
 
-            // Keep the service alive
             while (!stoppingToken.IsCancellationRequested)
             {
                 await Task.Delay(1000, stoppingToken);
@@ -103,5 +115,14 @@ public class MqttListenerService(
         {
             logger.LogError(ex, "Critical error in MqttListenerService.");
         }
+    }
+
+    private Task SendMessageAsync(string topic, string message, ushort topicAlias)
+    {
+        using var sessionScope = serviceProvider.CreateScope();
+        var mediator = sessionScope.ServiceProvider.GetRequiredService<IMediator>();
+
+        // mediator.SendAsync(new BrokerMessageCommand(topic, message, topicAlias));
+        throw new NotImplementedException();
     }
 }
