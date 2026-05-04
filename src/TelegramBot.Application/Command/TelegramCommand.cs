@@ -36,7 +36,7 @@ public class TelegramCommandHandler(IMessageFormatter formatter, IOptions<Telegr
             BotCommandType.Start            => GetStartResponse(),
             BotCommandType.Status           => new BotResponse(await formatter.GetStatusMessageAsync()),
             BotCommandType.Stats            => new BotResponse(formatter.GetStatsMessage()),
-            BotCommandType.Pnl              => new BotResponse(await formatter.GetPnlMessageAsync()),
+            BotCommandType.Pnl              => new BotResponse(await formatter.GetPnlMessageAsync(command.CommandArgs.Length > 0 ? command.CommandArgs[0] : null)),
             BotCommandType.Positions        => new BotResponse(await formatter.GetPositionsMessageAsync()),
             BotCommandType.Trades           => new BotResponse(formatter.GetTradesMessage(GetTradesLimit(command.CommandArgs))),
             BotCommandType.Agents           => new BotResponse(await formatter.GetAgentsMessageAsync()),
@@ -85,7 +85,7 @@ public class TelegramCommandHandler(IMessageFormatter formatter, IOptions<Telegr
         "📊 <b>Monitoring</b>\n" +
         "/status — État global du système\n" +
         "/stats — Statistiques détaillées\n" +
-        "/pnl — Résumé rapide du PnL actuel\n" +
+        "/pnl [SPOT] — PnL global ou spécifique (ex: /pnl usdc)\n" +
         "/positions — Positions ouvertes\n" +
         "/trades [N] — Derniers N trades\n" +
         "/agents — État des agents IA\n" +

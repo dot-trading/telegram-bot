@@ -1,9 +1,10 @@
+using System.Text;
 using TelegramBot.Domain.Abstractions;
 using TelegramBot.Domain.Constants;
 
 namespace TelegramBot.Application.Services;
 
-public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClusterService cluster)
+public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClusterService cluster, IBffService bff)
     : IMessageFormatter
 {
     private static string Now() => DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
@@ -63,26 +64,59 @@ public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClu
         catch (Exception e) { return $"❌ Erreur stats: {e.Message}"; }
     }
 
-    public async Task<string> GetPnlMessageAsync()
+    public async Task<string> GetPnlMessageAsync(string? spot = null)
     {
         try
         {
-            var s = db.GetPnlSummary();
-            var bals = await binance.GetBalancesAsync();
-            var totalBal = bals.GetValueOrDefault("EUR") + bals.GetValueOrDefault("USDC") + bals.GetValueOrDefault("USDT");
+            if (!string.IsNullOrEmpty(spot))
+            {
+                return await GetSingleSpotPnlAsync(spot.ToUpper());
+            }
 
-            static string Emo(double v) => v >= 0 ? "📈" : "📉";
-            return $"💰 <b>PNL ACTUEL</b>\n" +
-                   $"━━━━━━━━━━━━━━━━━━━━\n" +
-                   $"💵 Capital libre : {totalBal:F2} USDT\n\n" +
-                   $"📊 <b>Rendements Nets :</b>\n" +
-                   $"{Emo(s.Daily)} Aujourd'hui : {s.Daily:+0.00;-0.00}€\n" +
-                   $"{Emo(s.Weekly)} Cette semaine : {s.Weekly:+0.00;-0.00}€\n" +
-                   $"{Emo(s.Monthly)} Ce mois : {s.Monthly:+0.00;-0.00}€\n" +
-                   $"{Emo(s.Total)} <b>Total : {s.Total:+0.00;-0.00}€</b>\n\n" +
-                   $"⚡ {Now()}";
+            var eur = await bff.GetPnlSummaryAsync("EUR");
+            var usdc = await bff.GetPnlSummaryAsync("USDC");
+            var btc = await bff.GetPnlSummaryAsync("BTC");
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("💰 <b>RÉSUMÉ P&amp;L GLOBAL</b>");
+            sb.AppendLine("━━━━━━━━━━━━━━━━━━━━");
+            
+            sb.AppendLine(FormatSpotSection("EUR", eur, "€"));
+            sb.AppendLine(FormatSpotSection("USDC", usdc, "$"));
+            sb.AppendLine(FormatSpotSection("BTC", btc, "₿"));
+
+            sb.AppendLine($"⚡ {Now()}");
+            return sb.ToString();
         }
         catch (Exception e) { return $"❌ Erreur PNL: {e.Message}"; }
+    }
+
+    private async Task<string> GetSingleSpotPnlAsync(string spot)
+    {
+        var s = await bff.GetPnlSummaryAsync(spot);
+        string currency = spot == "EUR" ? "€" : spot == "BTC" ? "₿" : "$";
+        
+        return $"💰 <b>P&amp;L {spot}</b>\n" +
+               $"━━━━━━━━━━━━━━━━━━━━\n" +
+               FormatSpotDetails(s, currency) +
+               $"\n⚡ {Now()}";
+    }
+
+    private static string FormatSpotSection(string label, PnlSummary s, string currency)
+    {
+        static string Emo(double v) => v >= 0 ? "📈" : "📉";
+        return $"\n<b>{label}</b>\n" +
+               $"{Emo(s.Daily)} Jour: {s.Daily:+0.00;-0.00}{currency}\n" +
+               $"{Emo(s.Total)} <b>Total: {s.Total:+0.00;-0.00}{currency}</b>";
+    }
+
+    private static string FormatSpotDetails(PnlSummary s, string currency)
+    {
+        static string Emo(double v) => v >= 0 ? "📈" : "📉";
+        return $"{Emo(s.Daily)} Aujourd'hui : {s.Daily:+0.00;-0.00}{currency}\n" +
+               $"{Emo(s.Weekly)} Cette semaine : {s.Weekly:+0.00;-0.00}{currency}\n" +
+               $"{Emo(s.Monthly)} Ce mois : {s.Monthly:+0.00;-0.00}{currency}\n" +
+               $"{Emo(s.Total)} <b>Total : {s.Total:+0.00;-0.00}{currency}</b>";
     }
 
     public async Task<string> GetPositionsMessageAsync()

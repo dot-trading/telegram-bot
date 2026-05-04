@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TelegramBot.Domain.Abstractions;
 using TelegramBot.Infrastructure.Persistence;
 using TelegramBot.Infrastructure.Services;
+using TelegramBot.Infrastructure.Clients;
 
 namespace TelegramBot.Infrastructure;
 
@@ -21,6 +22,8 @@ public static class DependencyInjection
         services.AddScoped<IDatabaseService, DatabaseService>();
         services.AddScoped<IBinanceService, BinanceService>();
         services.AddScoped<IClusterService, ClusterService>();
+        
+        services.AddHttpClient<IBffService, BffServiceClient>();
 
         return services;
     }

@@ -8,6 +8,7 @@ COPY ["src/TelegramBot.UI/TelegramBot.UI.csproj", "src/TelegramBot.UI/"]
 COPY ["src/TelegramBot.Application/TelegramBot.Application.csproj", "src/TelegramBot.Application/"]
 COPY ["src/TelegramBot.Domain/TelegramBot.Domain.csproj", "src/TelegramBot.Domain/"]
 COPY ["src/TelegramBot.Infrastructure/TelegramBot.Infrastructure.csproj", "src/TelegramBot.Infrastructure/"]
+COPY ["tests/TelegramBot.Domain.Tests/TelegramBot.Domain.Tests.csproj", "tests/TelegramBot.Domain.Tests/"]
 
 RUN dotnet restore "DotTelegramBot.slnx"
 
