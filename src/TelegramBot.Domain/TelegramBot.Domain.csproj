@@ -6,4 +6,10 @@
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Telegram.Bot">
+        <HintPath>..\..\..\..\..\home\hamza\.nuget\packages\telegram.bot\22.9.6\lib\net6.0\Telegram.Bot.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>
