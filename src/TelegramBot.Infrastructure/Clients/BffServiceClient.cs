@@ -19,7 +19,7 @@ public class BffServiceClient(HttpClient httpClient) : IBffService
         {
             var response = await httpClient.GetFromJsonAsync<PnlSummaryResponse>(url, ct);
             return response != null 
-                ? new PnlSummary(response.Daily, response.Weekly, response.Monthly, response.Total)
+                ? new PnlSummary(response.Today.Value, response.ThisWeek.Value, response.ThisMonth.Value, response.Total.Value)
                 : new PnlSummary(0, 0, 0, 0);
         }
         catch
@@ -30,9 +30,14 @@ public class BffServiceClient(HttpClient httpClient) : IBffService
 
     private class PnlSummaryResponse
     {
-        public double Daily { get; set; }
-        public double Weekly { get; set; }
-        public double Monthly { get; set; }
-        public double Total { get; set; }
+        public PnlSummaryItemResponse Today { get; set; } = new();
+        public PnlSummaryItemResponse ThisWeek { get; set; } = new();
+        public PnlSummaryItemResponse ThisMonth { get; set; } = new();
+        public PnlSummaryItemResponse Total { get; set; } = new();
+    }
+
+    private class PnlSummaryItemResponse
+    {
+        public double Value { get; set; }
     }
 }
