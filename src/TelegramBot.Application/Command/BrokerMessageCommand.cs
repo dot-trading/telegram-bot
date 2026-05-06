@@ -1,4 +1,8 @@
+using System.Text.Json;
+using Cortex.Mediator;
 using Cortex.Mediator.Commands;
+using TelegramBot.Domain.Constants;
+using TelegramBot.Domain.Messages.Common;
 
 namespace TelegramBot.Application.Command;
 
@@ -7,13 +11,25 @@ namespace TelegramBot.Application.Command;
 /// will be executed in this handler 
 /// </summary>
 // ReSharper disable once ClassNeverInstantiated.Global
-public record BrokerMessageCommand(string Topic, string Payload, ushort TopicAlias) : ICommand;
+public record BrokerMessageCommand(string Topic, string Payload, long ChatId) : ICommand;
 
-public class BrokerMessageCommandHandler : ICommandHandler<BrokerMessageCommand>
+public class BrokerMessageCommandHandler(IMediator mediator) : ICommandHandler<BrokerMessageCommand>
 {
-    public Task Handle(BrokerMessageCommand command, CancellationToken cancellationToken)
+    public async Task Handle(BrokerMessageCommand command, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var payload = JsonSerializer.Deserialize<BrokerMessagePayload>(command.Payload);
+        if(payload == null) throw new ArgumentNullException(nameof(command.Payload));
+        
+        switch (command.Topic)
+        {
+            case MessageTopic.ReportTopicPath:
+            {
+                var reportCommand = new ReportCommand() { Payload = payload };
+                await mediator.SendCommandAsync(reportCommand, cancellationToken);
+            }
+            break;
+        }
+        
     }
 }
 
