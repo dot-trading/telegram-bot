@@ -123,7 +123,7 @@ public class MqttListenerService : BackgroundService
             await _client.ConnectAsync(mqttClientOptions, stoppingToken);
 
             var subscribeOptions = new MqttClientSubscribeOptionsBuilder()
-                .WithTopicFilter(_ => Task.FromResult(true))
+                .WithTopicFilter(f => f.WithTopic("#"))
                 .Build();
 
             await _client.SubscribeAsync(subscribeOptions, stoppingToken);

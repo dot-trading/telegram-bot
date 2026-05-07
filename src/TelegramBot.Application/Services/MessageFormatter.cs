@@ -14,7 +14,19 @@ public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClu
         try
         {
             var bals = await binance.GetBalancesAsync();
-            var total = bals.GetValueOrDefault("EUR") + bals.GetValueOrDefault("USDC") + bals.GetValueOrDefault("USDT");
+            var eur = bals.GetValueOrDefault("EUR");
+            var usdc = bals.GetValueOrDefault("USDC");
+            var btc = bals.GetValueOrDefault("BTC");
+
+            // Conversion rates (with fallbacks)
+            double eurUsdc = 1.08; 
+            double btcUsdc = 80000;
+            try { eurUsdc = await binance.GetCurrentPriceAsync("EURUSDC"); } catch { }
+            try { btcUsdc = await binance.GetCurrentPriceAsync("BTCUSDC"); } catch { }
+
+            var totalUsdc = usdc + (eur * eurUsdc) + (btc * btcUsdc);
+            var totalEur = totalUsdc / eurUsdc;
+
             var openCount = db.GetOpenPositionsCount();
             var dailyPnl = db.GetDailyPnl();
             var totalPnl = db.GetTotalPnl();
@@ -32,10 +44,10 @@ public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClu
                    $"├─ Persistence: {persistenceStatus}\n" +
                    $"└─ Database: {IconsStrings.Ok} Connected\n\n" +
                    $"{IconsStrings.CashBag} <b>Portfolio:</b>\n" +
-                   $"├─ Capital libre: {total:F2}€\n" +
-                   $"│   ├─ EUR: {bals.GetValueOrDefault("EUR"):F2}\n" +
-                   $"│   ├─ USDC: {bals.GetValueOrDefault("USDC"):F2}\n" +
-                   $"│   └─ BTC: {bals.GetValueOrDefault("BTC"):F6}\n" +
+                   $"├─ Total approx: <b>{totalEur:F2}€</b>\n" +
+                   $"│   ├─ EUR: {eur:F2}€\n" +
+                   $"│   ├─ USDC: {usdc:F2}$\n" +
+                   $"│   └─ BTC: {btc:F6}₿\n" +
                    $"├─ Positions ouvertes: {openCount}\n" +
                    $"├─ {emo} P&amp;L jour: {dailyPnl:+0.00;-0.00}€\n" +
                    $"└─ P&amp;L total: {totalPnl:+0.00;-0.00}€\n\n" +
@@ -131,13 +143,14 @@ public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClu
             foreach (var r in rows)
             {
                 string pnlStr;
+                var currency = r.Symbol.EndsWith("EUR") ? "€" : r.Symbol.EndsWith("BTC") ? "₿" : "$";
                 try
                 {
                     var cur = await binance.GetCurrentPriceAsync(r.Symbol);
                     var pnlPct = (cur - r.Entry) / r.Entry * 100;
-                    var pnlEur = (cur - r.Entry) * r.Quantity;
+                    var pnlValue = (cur - r.Entry) * r.Quantity;
                     var emo = pnlPct >= 0 ? "🟢" : "🔴";
-                    pnlStr = $"{emo} {pnlPct:+0.00;-0.00}% ({pnlEur:+0.00;-0.00}€)";
+                    pnlStr = $"{emo} {pnlPct:+0.00;-0.00}% ({pnlValue:+0.00;-0.00}{currency})";
                 }
                 catch { pnlStr = "N/A"; }
 
@@ -145,7 +158,7 @@ public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClu
                 lines.Add(
                     $"\n<b>{r.Symbol}</b> — {r.Side} | Score IA: {r.AiScore}\n" +
                     $"├─ Entrée: {r.Entry:F4}\n" +
-                    $"├─ Montant: {r.UsdtValue:F2}€ ({r.Quantity:F4})\n" +
+                    $"├─ Montant: {r.UsdtValue:F2}{currency} ({r.Quantity:F4})\n" +
                     $"├─ P&amp;L: {pnlStr}\n" +
                     $"├─ SL: {r.StopLoss:F4}{tp}\n" +
                     $"└─ Depuis: {r.CreatedAt:dd/MM/yyyy HH:mm}");
@@ -168,10 +181,11 @@ public class MessageFormatter(IDatabaseService db, IBinanceService binance, IClu
             foreach (var r in rows)
             {
                 var emo = r.Pnl >= 0 ? "✅" : "❌";
+                var currency = r.Symbol.EndsWith("EUR") ? "€" : r.Symbol.EndsWith("BTC") ? "₿" : "$";
                 lines.Add(
                     $"\n{emo} <b>{r.Symbol}</b>\n" +
                     $"├─ Entrée: {r.Entry:F4} → Sortie: {r.ClosePrice:F4}\n" +
-                    $"├─ P&amp;L: {r.Pnl:+0.00;-0.00}€ ({r.PnlPct:+0.00;-0.00}%)\n" +
+                    $"├─ P&amp;L: {r.Pnl:+0.00;-0.00}{currency} ({r.PnlPct:+0.00;-0.00}%)\n" +
                     $"└─ Fermé: {r.ClosedAt:dd/MM/yyyy HH:mm}");
             }
             lines.Add($"\n⚡ {Now()}");
