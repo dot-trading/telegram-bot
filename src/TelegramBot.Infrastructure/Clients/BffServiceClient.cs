@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using TelegramBot.Domain.Abstractions;
+using TelegramBot.Domain.Messages;
 
 namespace TelegramBot.Infrastructure.Clients;
 
@@ -28,6 +29,34 @@ public class BffServiceClient(HttpClient httpClient) : IBffService
         }
     }
 
+    public async Task<MarketStressContext> GetMarketStressContextAsync(string quoteAsset, CancellationToken ct = default)
+    {
+        var url = $"{BaseUrl}/notifications/market-stress-context?quoteAsset={quoteAsset.ToUpper()}";
+
+        try
+        {
+            var response = await httpClient.GetFromJsonAsync<MarketStressContextResponse>(url, ct);
+            if (response is null)
+                return new MarketStressContext();
+
+            return new MarketStressContext
+            {
+                FearAndGreedIndex  = response.FearAndGreedIndex,
+                FearAndGreedLabel  = response.FearAndGreedLabel,
+                OpenPositionsCount = response.OpenPositionsCount,
+                DailyPnl           = response.DailyPnl,
+                TotalPnl           = response.TotalPnl,
+            };
+        }
+        catch
+        {
+            // En cas d'erreur BFF, on retourne un contexte vide plutôt que de bloquer la notification
+            return new MarketStressContext();
+        }
+    }
+
+    // ── DTOs de désérialisation ───────────────────────────────────────────────
+
     private class PnlSummaryResponse
     {
         public PnlSummaryItemResponse Today { get; set; } = new();
@@ -39,5 +68,14 @@ public class BffServiceClient(HttpClient httpClient) : IBffService
     private class PnlSummaryItemResponse
     {
         public double Value { get; set; }
+    }
+
+    private class MarketStressContextResponse
+    {
+        public int    FearAndGreedIndex  { get; set; }
+        public string FearAndGreedLabel  { get; set; } = string.Empty;
+        public int    OpenPositionsCount { get; set; }
+        public double DailyPnl           { get; set; }
+        public double TotalPnl           { get; set; }
     }
 }
