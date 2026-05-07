@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using TelegramBot.Application;
+using TelegramBot.Application.Common.Abstractions;
 using TelegramBot.Domain;
 using TelegramBot.Domain.Settings;
 using TelegramBot.Infrastructure;
@@ -29,6 +30,9 @@ public static class DependencyInjection
             var settings = sp.GetRequiredService<IOptions<TelegramBotSettings>>().Value;
             return new TelegramBotClient(settings.BotToken);
         });
+
+        // Telegram sender (envoie des alertes proactives depuis les handlers Application)
+        services.AddSingleton<ITelegramSender, TelegramSenderService>();
 
         services.AddHostedService<MqttListenerService>();
 

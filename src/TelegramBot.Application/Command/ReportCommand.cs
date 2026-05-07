@@ -17,7 +17,7 @@ public class ReportCommandHandler(IBffService bffService) : ICommandHandler<Repo
         // ["periodKey"] = command.PeriodKey,
         // ["periodLabel"] = command.PeriodLabel,
             
-        bffService.
+        
         throw new NotImplementedException();
     }
 }

@@ -28,8 +28,40 @@ public class BrokerMessageCommandHandler(IMediator mediator) : ICommandHandler<B
                 await mediator.SendCommandAsync(reportCommand, cancellationToken);
             }
             break;
+
+            case MessageTopic.MarketStressTopicPath:
+            {
+                var stressCommand = new MarketStressCommand
+                {
+                    Payload = payload,
+                    ChatId  = command.ChatId,
+                };
+                await mediator.SendCommandAsync(stressCommand, cancellationToken);
+            }
+            break;
+
+            case MessageTopic.ServiceStartTopicPath:
+            {
+                var startCommand = new ServiceStartedCommand
+                {
+                    Payload = payload,
+                    ChatId  = command.ChatId,
+                };
+                await mediator.SendCommandAsync(startCommand, cancellationToken);
+            }
+            break;
+
+            case MessageTopic.AlertsTopicPath:
+            {
+                var alertCommand = new RawAlertCommand
+                {
+                    Payload = payload,
+                    ChatId  = command.ChatId,
+                };
+                await mediator.SendCommandAsync(alertCommand, cancellationToken);
+            }
+            break;
         }
-        
     }
 }
 
