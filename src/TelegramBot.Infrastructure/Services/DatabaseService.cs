@@ -94,7 +94,8 @@ public class DatabaseService(IOptions<TradingConnectionSettings> settings) : IDa
         using var conn = GetConnection();
         conn.Open();
         using var cmd = new NpgsqlCommand(
-            "SELECT symbol, side, price, quantity, usdt_value, stop_loss, take_profit, ai_score, created_at " +
+            "SELECT symbol, side, CASE WHEN price > 0 THEN price ELSE usdt_value / NULLIF(quantity, 0) END, " +
+            "quantity, usdt_value, stop_loss, take_profit, ai_score, created_at " +
             "FROM trades WHERE status='open' ORDER BY created_at DESC", conn);
         using var r = cmd.ExecuteReader();
         var list = new List<OpenPosition>();
