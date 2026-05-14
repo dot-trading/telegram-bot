@@ -23,7 +23,7 @@ public class DatabaseService(IOptions<TradingConnectionSettings> settings) : IDa
         using var conn = GetConnection();
         conn.Open();
         using var cmd = new NpgsqlCommand(
-            "SELECT COALESCE(SUM(pnl_usdt),0) FROM trades WHERE status='closed' AND close_at >= DATE_TRUNC('day',NOW())", conn);
+            "SELECT COALESCE(SUM(pnl),0) FROM trades WHERE status='closed' AND close_at >= DATE_TRUNC('day',NOW())", conn);
         return Convert.ToDouble(cmd.ExecuteScalar());
     }
 
@@ -32,7 +32,7 @@ public class DatabaseService(IOptions<TradingConnectionSettings> settings) : IDa
         using var conn = GetConnection();
         conn.Open();
         using var cmd = new NpgsqlCommand(
-            "SELECT COALESCE(SUM(pnl_usdt),0) FROM trades WHERE status='closed'", conn);
+            "SELECT COALESCE(SUM(pnl),0) FROM trades WHERE status='closed'", conn);
         return Convert.ToDouble(cmd.ExecuteScalar());
     }
 
@@ -47,7 +47,7 @@ public class DatabaseService(IOptions<TradingConnectionSettings> settings) : IDa
         foreach (var (label, trunc) in new[] { ("day", "day"), ("week", "week"), ("month", "month") })
         {
             using var cmd = new NpgsqlCommand(
-                $"SELECT COALESCE(SUM(pnl_usdt),0), COUNT(*) FROM trades WHERE status='closed' AND close_at >= DATE_TRUNC('{trunc}',NOW())", conn);
+                $"SELECT COALESCE(SUM(pnl),0), COUNT(*) FROM trades WHERE status='closed' AND close_at >= DATE_TRUNC('{trunc}',NOW())", conn);
             using var r = cmd.ExecuteReader();
             if (!r.Read()) continue;
             var pnl = Convert.ToDouble(r[0]);
@@ -60,13 +60,13 @@ public class DatabaseService(IOptions<TradingConnectionSettings> settings) : IDa
             }
         }
 
-        using (var cmd = new NpgsqlCommand("SELECT COALESCE(SUM(pnl_usdt),0), COUNT(*) FROM trades WHERE status='closed'", conn))
+        using (var cmd = new NpgsqlCommand("SELECT COALESCE(SUM(pnl),0), COUNT(*) FROM trades WHERE status='closed'", conn))
         using (var r = cmd.ExecuteReader())
         {
             if (r.Read()) { pnlTotal = Convert.ToDouble(r[0]); cTotal = Convert.ToInt32(r[1]); }
         }
 
-        using (var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM trades WHERE status='closed' AND pnl_usdt > 0", conn))
+        using (var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM trades WHERE status='closed' AND pnl > 0", conn))
             wins = Convert.ToInt32(cmd.ExecuteScalar());
 
         return new Stats(pnlDay, pnlWeek, pnlMonth, pnlTotal, cDay, cWeek, cMonth, cTotal, wins,
@@ -81,7 +81,7 @@ public class DatabaseService(IOptions<TradingConnectionSettings> settings) : IDa
         double Query(string trunc)
         {
             using var cmd = new NpgsqlCommand(
-                "SELECT COALESCE(SUM(pnl_usdt),0) FROM trades WHERE status='closed'" +
+                "SELECT COALESCE(SUM(pnl),0) FROM trades WHERE status='closed'" +
                 (trunc != "all" ? $" AND close_at >= DATE_TRUNC('{trunc}',NOW())" : ""), conn);
             return Convert.ToDouble(cmd.ExecuteScalar());
         }
@@ -94,8 +94,8 @@ public class DatabaseService(IOptions<TradingConnectionSettings> settings) : IDa
         using var conn = GetConnection();
         conn.Open();
         using var cmd = new NpgsqlCommand(
-            "SELECT symbol, side, CASE WHEN price > 0 THEN price ELSE usdt_value / NULLIF(quantity, 0) END, " +
-            "quantity, usdt_value, stop_loss, take_profit, ai_score, created_at " +
+            "SELECT symbol, side, CASE WHEN price > 0 THEN price ELSE value / NULLIF(quantity, 0) END, " +
+            "quantity, value, stop_loss, take_profit, ai_score, created_at " +
             "FROM trades WHERE status='open' ORDER BY created_at DESC", conn);
         using var r = cmd.ExecuteReader();
         var list = new List<OpenPosition>();
@@ -115,7 +115,7 @@ public class DatabaseService(IOptions<TradingConnectionSettings> settings) : IDa
         using var conn = GetConnection();
         conn.Open();
         using var cmd = new NpgsqlCommand(
-            $"SELECT symbol, side, price, close_price, pnl_usdt, pnl_pct, ai_score, created_at, close_at " +
+            $"SELECT symbol, side, price, close_price, pnl, pnl_pct, ai_score, created_at, close_at " +
             $"FROM trades WHERE status='closed' ORDER BY close_at DESC LIMIT {limit}", conn);
         using var r = cmd.ExecuteReader();
         var list = new List<ClosedTrade>();
