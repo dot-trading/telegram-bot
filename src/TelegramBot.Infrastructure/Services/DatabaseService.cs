@@ -102,9 +102,9 @@ public class DatabaseService(IOptions<TradingConnectionSettings> settings) : IDa
         while (r.Read())
             list.Add(new OpenPosition(
                 r.GetString(0), r.GetString(1),
-                r.GetDouble(2), r.GetDouble(3), r.GetDouble(4),
-                r.IsDBNull(5) ? null : r.GetDouble(5),
-                r.IsDBNull(6) ? null : r.GetDouble(6),
+                Convert.ToDouble(r[2]), Convert.ToDouble(r[3]), Convert.ToDouble(r[4]),
+                r.IsDBNull(5) ? null : Convert.ToDouble(r[5]),
+                r.IsDBNull(6) ? null : Convert.ToDouble(r[6]),
                 r.IsDBNull(7) ? null : r.GetInt32(7),
                 r.GetDateTime(8)));
         return list;
@@ -122,10 +122,10 @@ public class DatabaseService(IOptions<TradingConnectionSettings> settings) : IDa
         while (r.Read())
             list.Add(new ClosedTrade(
                 r.GetString(0), r.GetString(1),
-                r.GetDouble(2),
-                r.IsDBNull(3) ? 0 : r.GetDouble(3),
-                r.IsDBNull(4) ? 0 : r.GetDouble(4),
-                r.IsDBNull(5) ? 0 : r.GetDouble(5),
+                Convert.ToDouble(r[2]),
+                r.IsDBNull(3) ? 0 : Convert.ToDouble(r[3]),
+                r.IsDBNull(4) ? 0 : Convert.ToDouble(r[4]),
+                r.IsDBNull(5) ? 0 : Convert.ToDouble(r[5]),
                 r.IsDBNull(6) ? null : r.GetInt32(6),
                 r.GetDateTime(7),
                 r.IsDBNull(8) ? DateTime.MinValue : r.GetDateTime(8)));
