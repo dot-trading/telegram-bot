@@ -18,8 +18,8 @@ public static class DependencyInjection
         // Settings (auto-discovers all *Settings classes via reflection)
         services.ConfigureAllSettings(configuration);
 
-        // Infrastructure (DbContext, DatabaseService, BinanceService, ClusterService)
-        services.AddInfrastructure();
+        // Infrastructure (DbContext, DatabaseService, BinanceService, ClusterService, BFF client)
+        services.AddInfrastructure(configuration);
 
         // Application (MessageFormatter, Mediator handlers)
         services.AddApplication();

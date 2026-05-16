@@ -12,6 +12,7 @@
         <PackageReference Include="System.Security.Cryptography.Xml" />
         <PackageReference Include="Telegram.Bot" />
         <PackageReference Include="Microsoft.Extensions.Http" />
+        <PackageReference Include="TradingProject.Bff.Client" />
     </ItemGroup>
 
     <ItemGroup>

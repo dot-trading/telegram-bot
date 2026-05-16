@@ -4,6 +4,7 @@
         <PackageReference Include="Cortex.Mediator" />
         <PackageReference Include="Cortex.Mediator.Behaviors.FluentValidation" />
         <PackageReference Include="Cortex.Mediator.Behaviors.Transactional" />
+        <PackageReference Include="TradingProject.Bff.Client" />
     </ItemGroup>
 
     <ItemGroup>
