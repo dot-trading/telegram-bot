@@ -92,6 +92,8 @@ spec:
                 secretKeyRef:
                   name: trading-secrets
                   key: binance-api-secret
+            - name: BffApi__BaseUrl
+              value: "http://trading-bff-api/api"
           resources:
             requests:
               memory: "128Mi"
