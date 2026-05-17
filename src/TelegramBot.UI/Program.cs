@@ -2,8 +2,14 @@ using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using TelegramBot.Domain.Settings;
 using TelegramBot.UI;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

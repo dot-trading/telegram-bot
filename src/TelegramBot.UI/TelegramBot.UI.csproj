@@ -5,6 +5,8 @@
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
         <PackageReference Include="MQTTnet" />
         <PackageReference Include="Telegram.Bot" />
+        <PackageReference Include="Serilog.AspNetCore" />
+        <PackageReference Include="Serilog.Sinks.Elasticsearch" />
     </ItemGroup>
 
     <ItemGroup>
